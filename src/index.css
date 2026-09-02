@@ -11,10 +11,11 @@ body {
 }
 
 h1, h2, h3, .font-display {
-  @apply font-display;
+  font-family: 'Fraunces', serif;
 }
 
 :focus-visible {
   outline: 2px solid #0F4C5C;
   outline-offset: 2px;
 }
+
