@@ -7,6 +7,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [profileLoading, setProfileLoading] = useState(true)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -24,20 +25,25 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user) {
       setProfile(null)
+      setProfileLoading(false)
       return
     }
+    setProfileLoading(true)
     supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single()
-      .then(({ data }) => setProfile(data))
+      .then(({ data }) => {
+        setProfile(data)
+        setProfileLoading(false)
+      })
   }, [user])
 
   const signOut = () => supabase.auth.signOut()
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, profileLoading, signOut }}>
       {children}
     </AuthContext.Provider>
   )
