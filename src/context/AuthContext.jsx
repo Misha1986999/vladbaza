@@ -23,6 +23,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   useEffect(() => {
+    if (loading) return
     if (!user) {
       setProfile(null)
       setProfileLoading(false)
@@ -38,7 +39,7 @@ export function AuthProvider({ children }) {
         setProfile(data)
         setProfileLoading(false)
       })
-  }, [user])
+  }, [user, loading])
 
   const signOut = () => supabase.auth.signOut()
 
