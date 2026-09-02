@@ -38,7 +38,10 @@ export default function Home() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-semibold text-ink mb-1">Объявления Владивостока</h1>
-        <p className="text-ink/60">Публикуйте и находите — от соседей, без посредников.</p>
+        <p className="text-ink/60 mb-3">Публикуйте и находите — от соседей, без посредников.</p>
+        <svg width="120" height="10" viewBox="0 0 120 10" fill="none" className="text-tide">
+          <path d="M0 5c6-6 12 6 18 0s12-6 18 0 12 6 18 0 12-6 18 0 12 6 18 0 12-6 18 0 12 6 12 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
       </div>
 
       <div className="flex flex-wrap gap-3 mb-6">
@@ -78,8 +81,12 @@ export default function Home() {
       {loading ? (
         <p className="text-ink/50">Загрузка объявлений...</p>
       ) : listings.length === 0 ? (
-        <div className="text-center py-16 text-ink/50">
-          <p className="text-lg mb-1">Пока здесь пусто</p>
+        <div className="text-center py-20 text-ink/50">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" className="mx-auto mb-3 text-bay/40">
+            <path d="M12 2v6M9 8h6l3 12H6L9 8Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+            <path d="M4 22h16" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+          </svg>
+          <p className="text-lg mb-1 text-ink/70">Пока здесь пусто</p>
           <p className="text-sm">Будьте первым, кто разместит объявление в этой категории.</p>
         </div>
       ) : (

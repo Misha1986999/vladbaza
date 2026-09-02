@@ -8,10 +8,13 @@ html {
 
 body {
   @apply bg-fog text-ink font-body antialiased;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(11, 59, 77, 0.07) 1px, transparent 0);
+  background-size: 22px 22px;
 }
 
 h1, h2, h3, .font-display {
-  font-family: 'Fraunces', serif;
+  @apply font-display;
 }
 
 :focus-visible {

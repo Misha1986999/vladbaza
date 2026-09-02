@@ -4,11 +4,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        ink: '#1C2321',
-        bay: '#0F4C5C',
-        tide: '#E8B04B',
-        fog: '#F3F1EA',
-        coral: '#C1502E',
+        ink: '#12201E',
+        bay: '#0B3B4D',
+        bayLight: '#1D5F73',
+        tide: '#D9A441',
+        fog: '#EEF2F1',
+        coral: '#B8562E',
       },
       fontFamily: {
         display: ['"Fraunces"', 'serif'],

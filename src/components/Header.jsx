@@ -13,7 +13,11 @@ export default function Header() {
   return (
     <header className="border-b border-ink/10 bg-fog/95 backdrop-blur sticky top-0 z-10">
       <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="font-display text-2xl font-semibold text-bay">
+        <Link to="/" className="flex items-center gap-2 font-display text-2xl font-semibold text-bay">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="text-tide">
+            <circle cx="12" cy="5" r="2" stroke="currentColor" strokeWidth="1.6" />
+            <path d="M12 7v13M7 12H3a9 9 0 0 0 9 9 9 9 0 0 0 9-9h-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
           ВладБаза
         </Link>
 

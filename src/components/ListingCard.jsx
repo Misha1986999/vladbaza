@@ -6,7 +6,7 @@ export default function ListingCard({ listing }) {
   return (
     <Link
       to={`/listing/${listing.id}`}
-      className="group block bg-white rounded-lg overflow-hidden border border-ink/10 hover:border-bay/40 transition-colors"
+      className="group block bg-white rounded-lg overflow-hidden border border-ink/10 hover:border-bay/40 hover:shadow-[0_8px_24px_-8px_rgba(11,59,77,0.35)] transition-all"
     >
       <div className="aspect-[4/3] bg-ink/5 overflow-hidden">
         {photo ? (
