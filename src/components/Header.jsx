@@ -1,7 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 export default function Header() {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const handleSignOut = async () => {
     await signOut()
@@ -18,6 +18,11 @@ export default function Header() {
           ВладБаза
         </Link>
         <nav className="hidden sm:flex items-center gap-3">
+          {profile?.is_admin && (
+            <Link to="/admin" className="text-ink/70 hover:text-ink px-3 py-2 text-sm">
+              Админка
+            </Link>
+          )}
           {user ? (
             <>
               <Link
