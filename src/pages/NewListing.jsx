@@ -19,6 +19,7 @@ export default function NewListing() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
+  const [newListingId, setNewListingId] = useState(null)
 
   useEffect(() => {
     supabase.from('categories').select('*').order('name').then(({ data }) => setCategories(data ?? []))
@@ -46,7 +47,7 @@ export default function NewListing() {
           phone,
           category_id: Number(categoryId),
           district_id: districtId ? Number(districtId) : null,
-          status: 'pending',
+          status: 'approved',
         })
         .select()
         .single()
@@ -71,6 +72,7 @@ export default function NewListing() {
         })
       }
 
+      setNewListingId(listing.id)
       setDone(true)
     } catch (err) {
       setError(err.message ?? 'Что-то пошло не так. Попробуйте ещё раз.')
@@ -82,13 +84,20 @@ export default function NewListing() {
   if (done) {
     return (
       <div className="text-center py-16">
-        <h1 className="text-2xl font-semibold mb-2">Объявление отправлено на проверку</h1>
+        <h1 className="text-2xl font-semibold mb-2">Объявление опубликовано</h1>
         <p className="text-ink/60 mb-6">
-          Оно появится на сайте после одобрения модератором — обычно это занимает немного времени.
+          Оно уже видно всем на сайте.
         </p>
-        <button onClick={() => navigate('/')} className="text-bay hover:underline">
-          Вернуться на главную
-        </button>
+        <div className="flex items-center justify-center gap-4">
+          <button onClick={() => navigate('/')} className="text-bay hover:underline">
+            На главную
+          </button>
+          {newListingId && (
+            <button onClick={() => navigate(`/listing/${newListingId}`)} className="text-bay hover:underline">
+              Посмотреть объявление
+            </button>
+          )}
+        </div>
       </div>
     )
   }
@@ -190,9 +199,9 @@ export default function NewListing() {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-coral text-white px-5 py-3 rounded-md font-medium hover:bg-coral/90 transition-colors disabled:opacity-50"
+          className="bg-bay text-white px-5 py-3 rounded-md font-medium hover:bg-bay/90 transition-colors disabled:opacity-50"
         >
-          {submitting ? 'Отправка...' : 'Отправить на проверку'}
+          {submitting ? 'Публикация...' : 'Опубликовать объявление'}
         </button>
       </form>
     </div>
