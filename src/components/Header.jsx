@@ -17,7 +17,7 @@ export default function Header() {
           </svg>
           ВладБаза
         </Link>
-        <nav className="flex items-center gap-3">
+        <nav className="hidden sm:flex items-center gap-3">
           {user ? (
             <>
               <Link
