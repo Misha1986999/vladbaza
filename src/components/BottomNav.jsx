@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
 export default function BottomNav() {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
@@ -31,6 +31,15 @@ export default function BottomNav() {
         </svg>
         Разместить
       </NavLink>
+
+      {profile?.is_admin && (
+        <NavLink to="/admin" className={itemClass}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Админка
+        </NavLink>
+      )}
 
       {user ? (
         <button onClick={handleSignOut} className="flex flex-col items-center justify-center gap-1 flex-1 py-2 text-xs text-ink/60">
