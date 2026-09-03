@@ -4,24 +4,36 @@ import ListingCard from '../components/ListingCard.jsx'
 
 const CATEGORY_ICONS = {
   'Транспорт': (
-    <path d="M4 16l1.5-6h13L20 16M4 16h16M4 16v3h2v-3M18 16v3h2v-3M7 10V6h10v4" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4 16l1.5-6h13L20 16M4 16h16M4 16v3h2v-3M18 16v3h2v-3M7 10V6h10v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
   'Недвижимость': (
-    <path d="M4 11l8-6 8 6M6 10v9h12v-9" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4 11l8-6 8 6M6 10v9h12v-9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
   'Работа': (
-    <path d="M4 8h16v11H4V8Zm4 0V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M4 8h16v11H4V8Zm4 0V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
-  'Дом и ремонт': (
-    <path d="M5 4v16M5 4h11l-2 3 2 3H5" strokeLinecap="round" strokeLinejoin="round" />
+  'Для дома и дачи': (
+    <path d="M5 4v16M5 4h11l-2 3 2 3H5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
-  'Техника': (
-    <path d="M4 5h16v11H4V5Zm5 15h6M12 16v4" strokeLinecap="round" strokeLinejoin="round" />
+  'Электроника': (
+    <path d="M4 5h16v11H4V5Zm5 15h6M12 16v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  ),
+  'Животные': (
+    <path d="M12 21c-4-2-7-5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 19 12c0 4-3 7-7 9Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  ),
+  'Личные вещи': (
+    <path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M4 7h16l-1 13H5L4 7Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  ),
+  'Услуги': (
+    <path d="M12 3l2 4 4.5.7-3.2 3.2.8 4.6L12 13.5 8 15.5l.8-4.6L5.5 7.7 10 7l2-4Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  ),
+  'Хобби и отдых': (
+    <path d="M12 3v6M9 8h6l3 12H6L9 8Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
 }
 
 const DEFAULT_ICON = (
-  <path d="M12 3v6M9 9h6l3 12H6L9 9Z" strokeLinecap="round" strokeLinejoin="round" />
+  <path d="M12 3v6M9 9h6l3 12H6L9 9Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
 )
 
 export default function Home() {
