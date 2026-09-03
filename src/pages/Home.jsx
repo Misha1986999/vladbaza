@@ -73,9 +73,7 @@ export default function Home() {
       <div className="mb-8">
         <h1 className="font-display text-3xl font-semibold text-ink mb-1">Объявления Владивостока</h1>
         <p className="text-ink/60 mb-3">Публикуйте и находите — от соседей, без посредников.</p>
-        <svg width="120" height="10" viewBox="0 0 120 10" fill="none" className="text-tide">
-          <path d="M0 5c6-6 12 6 18 0s12-6 18 0 12 6 18 0 12-6 18 0 12 6 18 0 12-6 18 0 12 6 12 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+      
       </div>
 
       {categories.length > 0 && (
