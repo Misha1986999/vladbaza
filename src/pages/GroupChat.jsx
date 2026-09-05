@@ -96,30 +96,31 @@ export default function GroupChat() {
     <div className="max-w-xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 220px)' }}>
       <h1 className="text-xl font-semibold border-b border-ink/10 pb-3 mb-3">Общий чат ВладБазы</h1>
 
-      <div className="flex-1 overflow-y-auto space-y-2 mb-3">
+      <div className="flex-1 overflow-y-auto flex flex-col gap-2 mb-3">
         {messages.length === 0 ? (
           <p className="text-ink/40 text-sm text-center py-8">Сообщений пока нет — напишите первым.</p>
         ) : (
           messages.map((m) => (
-            <div
-              key={m.id}
-              className={`group relative max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
-                m.sender_id === user.id ? 'bg-bay text-white ml-auto' : 'bg-white border border-ink/10'
-              }`}
-            >
-              {m.sender_id !== user.id && (
-                <p className="text-xs font-medium text-bay mb-0.5">{names[m.sender_id] || 'Пользователь'}</p>
-              )}
-              {m.content}
-              {profile?.is_admin && (
-                <button
-                  onClick={() => removeMessage(m.id)}
-                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-coral text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Удалить сообщение"
-                >
-                  ×
-                </button>
-              )}
+            <div key={m.id} className={`flex ${m.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
+              <div
+                className={`group relative inline-block max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
+                  m.sender_id === user.id ? 'bg-bay text-white' : 'bg-white border border-ink/10'
+                }`}
+              >
+                {m.sender_id !== user.id && (
+                  <p className="text-xs font-medium text-bay mb-0.5">{names[m.sender_id] || 'Пользователь'}</p>
+                )}
+                {m.content}
+                {profile?.is_admin && (
+                  <button
+                    onClick={() => removeMessage(m.id)}
+                    className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-coral text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Удалить сообщение"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
             </div>
           ))
         )}
