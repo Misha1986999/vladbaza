@@ -8,6 +8,9 @@ import EditListing from './pages/EditListing.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import AdminPanel from './pages/AdminPanel.jsx'
+import Chat from './pages/Chat.jsx'
+import Messages from './pages/Messages.jsx'
+import GroupChat from './pages/GroupChat.jsx'
 import RequireAuth from './components/RequireAuth.jsx'
 import RequireAdmin from './components/RequireAdmin.jsx'
 export default function App() {
@@ -32,6 +35,30 @@ export default function App() {
               <RequireAdmin>
                 <EditListing />
               </RequireAdmin>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <RequireAuth>
+                <Messages />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/chat/:id"
+            element={
+              <RequireAuth>
+                <Chat />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/group-chat"
+            element={
+              <RequireAuth>
+                <GroupChat />
+              </RequireAuth>
             }
           />
           <Route path="/login" element={<Login />} />
