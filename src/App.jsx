@@ -4,6 +4,7 @@ import BottomNav from './components/BottomNav.jsx'
 import Home from './pages/Home.jsx'
 import ListingDetail from './pages/ListingDetail.jsx'
 import NewListing from './pages/NewListing.jsx'
+import EditListing from './pages/EditListing.jsx'
 import Login from './pages/Login.jsx'
 import Register from './pages/Register.jsx'
 import AdminPanel from './pages/AdminPanel.jsx'
@@ -23,6 +24,14 @@ export default function App() {
               <RequireAuth>
                 <NewListing />
               </RequireAuth>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <RequireAdmin>
+                <EditListing />
+              </RequireAdmin>
             }
           />
           <Route path="/login" element={<Login />} />
