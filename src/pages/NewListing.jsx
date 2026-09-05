@@ -16,6 +16,7 @@ export default function NewListing() {
   const [categoryId, setCategoryId] = useState('')
   const [districtId, setDistrictId] = useState('')
   const [files, setFiles] = useState([])
+  const [previews, setPreviews] = useState([])
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
@@ -25,6 +26,18 @@ export default function NewListing() {
     supabase.from('categories').select('*').order('name').then(({ data }) => setCategories(data ?? []))
     supabase.from('districts').select('*').order('name').then(({ data }) => setDistricts(data ?? []))
   }, [])
+
+  useEffect(() => {
+    const urls = files.map((file) => URL.createObjectURL(file))
+    setPreviews(urls)
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [files])
+
+  const removeFile = (index) => {
+    setFiles((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -190,8 +203,38 @@ export default function NewListing() {
             accept="image/*"
             multiple
             onChange={(e) => setFiles(Array.from(e.target.files))}
-            className="w-full text-sm"
+            className="w-full text-sm mb-3"
           />
+          {previews.length > 0 && (
+            <div>
+              <div className="relative aspect-[4/3] bg-ink/5 rounded-lg overflow-hidden mb-2 max-w-sm">
+                <img src={previews[0]} alt="" className="w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => removeFile(0)}
+                  className="absolute top-2 right-2 w-7 h-7 rounded-full bg-ink/70 text-white flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+              {previews.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  {previews.slice(1).map((url, i) => (
+                    <div key={url} className="relative w-16 h-16 rounded-md overflow-hidden border border-ink/15 flex-shrink-0">
+                      <img src={url} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeFile(i + 1)}
+                        className="absolute top-0.5 right-0.5 w-5 h-5 rounded-full bg-ink/70 text-white text-xs flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {error && <p className="text-coral text-sm">{error}</p>}
