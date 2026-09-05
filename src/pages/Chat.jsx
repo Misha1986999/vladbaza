@@ -47,7 +47,7 @@ export default function Chat() {
         .on(
           'postgres_changes',
           { event: 'INSERT', schema: 'public', table: 'private_messages', filter: `conversation_id=eq.${id}` },
-          (payload) => setMessages((prev) => [...prev, payload.new])
+          (payload) => setMessages((prev) => (prev.some((m) => m.id === payload.new.id) ? prev : [...prev, payload.new]))
         )
         .on(
           'postgres_changes',
@@ -83,7 +83,11 @@ export default function Chat() {
   const removeMessage = async (msgId) => {
     const confirmed = window.confirm('Удалить это сообщение?')
     if (!confirmed) return
-    await supabase.from('private_messages').delete().eq('id', msgId)
+    setMessages((prev) => prev.filter((m) => m.id !== msgId))
+    const { error } = await supabase.from('private_messages').delete().eq('id', msgId)
+    if (error) {
+      alert('Не удалось удалить: ' + error.message)
+    }
   }
 
   if (loading) return <p className="text-ink/50">Загрузка...</p>
@@ -103,25 +107,22 @@ export default function Chat() {
           <p className="text-ink/40 text-sm text-center py-8">Сообщений пока нет — напишите первым.</p>
         ) : (
           messages.map((m) => (
-            <div
-              key={m.id}
-              className={`flex ${m.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-            >
+            <div key={m.id} className={`flex items-start gap-1 ${m.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
+              {profile?.is_admin && (
+                <button
+                  onClick={() => removeMessage(m.id)}
+                  className="w-6 h-6 rounded-full bg-coral text-white text-sm flex items-center justify-center flex-shrink-0 mt-1"
+                  title="Удалить сообщение"
+                >
+                  ×
+                </button>
+              )}
               <div
-                className={`group relative inline-block max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
+                className={`inline-block max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
                   m.sender_id === user.id ? 'bg-bay text-white' : 'bg-white border border-ink/10'
                 }`}
               >
                 {m.content}
-                {profile?.is_admin && (
-                  <button
-                    onClick={() => removeMessage(m.id)}
-                    className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-coral text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                    title="Удалить сообщение"
-                  >
-                    ×
-                  </button>
-                )}
               </div>
             </div>
           ))
