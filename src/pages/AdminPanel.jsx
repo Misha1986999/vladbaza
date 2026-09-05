@@ -2,46 +2,53 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 export default function AdminPanel() {
-  const [pending, setPending] = useState([])
+  const [listings, setListings] = useState([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState('')
 
   const load = () => {
     setLoading(true)
-    supabase
+    let query = supabase
       .from('listings')
       .select('*, listing_photos(url, sort_order), categories(name), districts(name)')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: true })
-      .then(({ data }) => {
-        setPending(data ?? [])
-        setLoading(false)
-      })
+      .order('created_at', { ascending: false })
+
+    if (search.trim()) query = query.ilike('title', `%${search.trim()}%`)
+
+    query.then(({ data }) => {
+      setListings(data ?? [])
+      setLoading(false)
+    })
   }
 
-  useEffect(load, [])
+  useEffect(load, [search])
 
-  const approve = async (id) => {
-    await supabase.from('listings').update({ status: 'approved' }).eq('id', id)
+  const remove = async (id, title) => {
+    const confirmed = window.confirm(`Удалить объявление «${title}»? Это действие нельзя отменить.`)
+    if (!confirmed) return
+    await supabase.from('listings').delete().eq('id', id)
     load()
   }
-
-  const reject = async (id) => {
-    const reason = window.prompt('Причина отклонения (необязательно):') ?? ''
-    await supabase.from('listings').update({ status: 'rejected', rejection_reason: reason }).eq('id', id)
-    load()
-  }
-
-  if (loading) return <p className="text-ink/50">Загрузка...</p>
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold mb-6">Модерация объявлений</h1>
+      <h1 className="text-2xl font-semibold mb-6">Все объявления</h1>
 
-      {pending.length === 0 ? (
-        <p className="text-ink/50">Нет объявлений, ожидающих проверки.</p>
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Поиск по названию..."
+        className="w-full mb-6 px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
+      />
+
+      {loading ? (
+        <p className="text-ink/50">Загрузка...</p>
+      ) : listings.length === 0 ? (
+        <p className="text-ink/50">Объявлений не найдено.</p>
       ) : (
         <div className="space-y-4">
-          {pending.map((listing) => {
+          {listings.map((listing) => {
             const photo = [...(listing.listing_photos ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]
             return (
               <div key={listing.id} className="bg-white border border-ink/10 rounded-lg p-4 flex gap-4">
@@ -64,16 +71,10 @@ export default function AdminPanel() {
                 </div>
                 <div className="flex flex-col gap-2 flex-shrink-0">
                   <button
-                    onClick={() => approve(listing.id)}
-                    className="bg-bay text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-bay/90"
-                  >
-                    Одобрить
-                  </button>
-                  <button
-                    onClick={() => reject(listing.id)}
+                    onClick={() => remove(listing.id, listing.title)}
                     className="border border-coral text-coral px-4 py-1.5 rounded-md text-sm font-medium hover:bg-coral/5"
                   >
-                    Отклонить
+                    Удалить
                   </button>
                 </div>
               </div>
