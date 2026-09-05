@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { useAuth } from '../context/AuthContext.jsx'
 
-export default function NewListing() {
-  const { user } = useAuth()
+export default function EditListing() {
+  const { id } = useParams()
   const navigate = useNavigate()
 
   const [categories, setCategories] = useState([])
@@ -15,16 +14,31 @@ export default function NewListing() {
   const [phone, setPhone] = useState('')
   const [categoryId, setCategoryId] = useState('')
   const [districtId, setDistrictId] = useState('')
-  const [files, setFiles] = useState([])
+  const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const [done, setDone] = useState(false)
-  const [newListingId, setNewListingId] = useState(null)
 
   useEffect(() => {
     supabase.from('categories').select('*').order('name').then(({ data }) => setCategories(data ?? []))
     supabase.from('districts').select('*').order('name').then(({ data }) => setDistricts(data ?? []))
-  }, [])
+
+    supabase
+      .from('listings')
+      .select('*')
+      .eq('id', id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setTitle(data.title ?? '')
+          setDescription(data.description ?? '')
+          setPrice(data.price ?? '')
+          setPhone(data.phone ?? '')
+          setCategoryId(data.category_id ?? '')
+          setDistrictId(data.district_id ?? '')
+        }
+        setLoading(false)
+      })
+  }, [id])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -36,75 +50,33 @@ export default function NewListing() {
     }
 
     setSubmitting(true)
-    try {
-      const { data: listing, error: insertError } = await supabase
-        .from('listings')
-        .insert({
-          user_id: user.id,
-          title,
-          description,
-          price: price ? Number(price) : null,
-          phone,
-          category_id: Number(categoryId),
-          district_id: districtId ? Number(districtId) : null,
-          status: 'approved',
-        })
-        .select()
-        .single()
+    const { error: updateError } = await supabase
+      .from('listings')
+      .update({
+        title,
+        description,
+        price: price ? Number(price) : null,
+        phone,
+        category_id: Number(categoryId),
+        district_id: districtId ? Number(districtId) : null,
+      })
+      .eq('id', id)
 
-      if (insertError) throw insertError
+    setSubmitting(false)
 
-      // Загрузка фото по одному в Storage, затем запись ссылок в listing_photos
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i]
-        const path = `${user.id}/${listing.id}/${Date.now()}-${i}-${file.name}`
-        const { error: uploadError } = await supabase.storage
-          .from('listing-photos')
-          .upload(path, file)
-        if (uploadError) throw uploadError
-
-        const { data: publicUrlData } = supabase.storage.from('listing-photos').getPublicUrl(path)
-
-        await supabase.from('listing_photos').insert({
-          listing_id: listing.id,
-          url: publicUrlData.publicUrl,
-          sort_order: i,
-        })
-      }
-
-      setNewListingId(listing.id)
-      setDone(true)
-    } catch (err) {
-      setError(err.message ?? 'Что-то пошло не так. Попробуйте ещё раз.')
-    } finally {
-      setSubmitting(false)
+    if (updateError) {
+      setError(updateError.message)
+      return
     }
+
+    navigate(`/listing/${id}`)
   }
 
-  if (done) {
-    return (
-      <div className="text-center py-16">
-        <h1 className="text-2xl font-semibold mb-2">Объявление опубликовано</h1>
-        <p className="text-ink/60 mb-6">
-          Оно уже видно всем на сайте.
-        </p>
-        <div className="flex items-center justify-center gap-4">
-          <button onClick={() => navigate('/')} className="text-bay hover:underline">
-            На главную
-          </button>
-          {newListingId && (
-            <button onClick={() => navigate(`/listing/${newListingId}`)} className="text-bay hover:underline">
-              Посмотреть объявление
-            </button>
-          )}
-        </div>
-      </div>
-    )
-  }
+  if (loading) return <p className="text-ink/50">Загрузка...</p>
 
   return (
     <div className="max-w-xl">
-      <h1 className="text-2xl font-semibold mb-6">Новое объявление</h1>
+      <h1 className="text-2xl font-semibold mb-6">Редактирование объявления</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -113,7 +85,6 @@ export default function NewListing() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             className="w-full px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
-            placeholder="Например: Велосипед Stels, б/у"
           />
         </div>
 
@@ -124,7 +95,6 @@ export default function NewListing() {
             onChange={(e) => setDescription(e.target.value)}
             rows={5}
             className="w-full px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
-            placeholder="Состояние, особенности, причина продажи..."
           />
         </div>
 
@@ -136,7 +106,6 @@ export default function NewListing() {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               className="w-full px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
-              placeholder="Оставьте пустым, если не хотите указывать"
             />
           </div>
           <div>
@@ -145,7 +114,6 @@ export default function NewListing() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
-              placeholder="+7 900 000-00-00"
             />
           </div>
         </div>
@@ -183,17 +151,6 @@ export default function NewListing() {
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-1">Фотографии</label>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={(e) => setFiles(Array.from(e.target.files))}
-            className="w-full text-sm"
-          />
-        </div>
-
         {error && <p className="text-coral text-sm">{error}</p>}
 
         <button
@@ -201,7 +158,7 @@ export default function NewListing() {
           disabled={submitting}
           className="bg-bay text-white px-5 py-3 rounded-md font-medium hover:bg-bay/90 transition-colors disabled:opacity-50"
         >
-          {submitting ? 'Публикация...' : 'Опубликовать объявление'}
+          {submitting ? 'Сохранение...' : 'Сохранить изменения'}
         </button>
       </form>
     </div>
