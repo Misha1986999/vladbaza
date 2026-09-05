@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 
 export default function AdminPanel() {
@@ -26,7 +27,11 @@ export default function AdminPanel() {
   const remove = async (id, title) => {
     const confirmed = window.confirm(`Удалить объявление «${title}»? Это действие нельзя отменить.`)
     if (!confirmed) return
-    await supabase.from('listings').delete().eq('id', id)
+    const { error } = await supabase.from('listings').delete().eq('id', id)
+    if (error) {
+      alert(`Не удалось удалить: ${error.message}`)
+      return
+    }
     load()
   }
 
@@ -51,8 +56,8 @@ export default function AdminPanel() {
           {listings.map((listing) => {
             const photo = [...(listing.listing_photos ?? [])].sort((a, b) => a.sort_order - b.sort_order)[0]
             return (
-              <div key={listing.id} className="bg-white border border-ink/10 rounded-lg p-4 flex gap-4">
-                <div className="w-24 h-24 bg-ink/5 rounded-md overflow-hidden flex-shrink-0">
+              <div key={listing.id} className="bg-white border border-ink/10 rounded-lg p-4 flex flex-col sm:flex-row gap-4">
+                <div className="w-full sm:w-24 h-40 sm:h-24 bg-ink/5 rounded-md overflow-hidden flex-shrink-0">
                   {photo ? (
                     <img src={photo.url} alt="" className="w-full h-full object-cover" />
                   ) : (
@@ -69,7 +74,13 @@ export default function AdminPanel() {
                   </p>
                   <p className="text-sm text-ink/70 line-clamp-2">{listing.description}</p>
                 </div>
-                <div className="flex flex-col gap-2 flex-shrink-0">
+                <div className="flex flex-row sm:flex-col gap-2 flex-shrink-0">
+                  <Link
+                    to={`/edit/${listing.id}`}
+                    className="bg-bay text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-bay/90 text-center"
+                  >
+                    Редактировать
+                  </Link>
                   <button
                     onClick={() => remove(listing.id, listing.title)}
                     className="border border-coral text-coral px-4 py-1.5 rounded-md text-sm font-medium hover:bg-coral/5"
