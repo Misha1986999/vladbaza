@@ -58,27 +58,4 @@ export default function ListingDetail() {
         <div className="flex gap-2 text-sm text-ink/50 mb-4">
           <span>{listing.categories?.name}</span>
           <span>·</span>
-          <span>{listing.districts?.name ?? 'Владивосток'}</span>
-        </div>
-        <p className="text-ink/80 whitespace-pre-wrap break-words mb-6">{listing.description}</p>
-        <div className="border-t border-ink/10 pt-4">
-          {showPhone ? (
-            
-              href={`tel:${listing.phone}`}
-              className="inline-block bg-bay text-white px-5 py-3 rounded-md font-medium"
-            >
-              {listing.phone}
-            </a>
-          ) : (
-            <button
-              onClick={() => setShowPhone(true)}
-              className="bg-coral text-white px-5 py-3 rounded-md font-medium hover:bg-coral/90 transition-colors"
-            >
-              Показать телефон
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
-  )
-}
+          <span>{listing.districts?.name ??
