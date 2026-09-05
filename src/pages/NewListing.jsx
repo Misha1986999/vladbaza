@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext.jsx'
@@ -21,6 +21,7 @@ export default function NewListing() {
   const [error, setError] = useState('')
   const [done, setDone] = useState(false)
   const [newListingId, setNewListingId] = useState(null)
+  const fileInputRef = useRef(null)
 
   useEffect(() => {
     supabase.from('categories').select('*').order('name').then(({ data }) => setCategories(data ?? []))
@@ -36,7 +37,14 @@ export default function NewListing() {
   }, [files])
 
   const removeFile = (index) => {
-    setFiles((prev) => prev.filter((_, i) => i !== index))
+    const updated = files.filter((_, i) => i !== index)
+    setFiles(updated)
+
+    if (fileInputRef.current) {
+      const dataTransfer = new DataTransfer()
+      updated.forEach((file) => dataTransfer.items.add(file))
+      fileInputRef.current.files = dataTransfer.files
+    }
   }
 
   const handleSubmit = async (e) => {
@@ -199,6 +207,7 @@ export default function NewListing() {
         <div>
           <label className="block text-sm font-medium mb-1">Фотографии</label>
           <input
+            ref={fileInputRef}
             type="file"
             accept="image/*"
             multiple
