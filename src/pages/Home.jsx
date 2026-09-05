@@ -49,7 +49,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.from('categories').select('*').order('name').then(({ data }) => setCategories(data ?? []))
+    supabase.from('categories').select('*').order('sort_order').then(({ data }) => setCategories(data ?? []))
     supabase.from('districts').select('*').order('name').then(({ data }) => setDistricts(data ?? []))
   }, [])
 
