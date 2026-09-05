@@ -27,8 +27,11 @@ const CATEGORY_ICONS = {
   'Услуги': (
     <path d="M12 3l2 4 4.5.7-3.2 3.2.8 4.6L12 13.5 8 15.5l.8-4.6L5.5 7.7 10 7l2-4Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
-  'Хобби и отдых': (
+ 'Хобби и отдых': (
     <path d="M12 3v6M9 8h6l3 12H6L9 8Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  ),
+  'Привезу автомобиль': (
+    <path d="M3 16l1.5-6h11L17 16M3 16h14M3 16v3h2v-3M15 16v3h2v-3M6 10V6h6v4M19 9l3 3-3 3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
   ),
 }
 
