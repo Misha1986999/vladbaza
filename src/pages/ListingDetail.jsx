@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext.jsx'
+
 export default function ListingDetail() {
   const { id } = useParams()
+  const { user } = useAuth()
+  const navigate = useNavigate()
   const [listing, setListing] = useState(null)
   const [loading, setLoading] = useState(true)
   const [showPhone, setShowPhone] = useState(false)
   const [activePhoto, setActivePhoto] = useState(0)
+  const [starting, setStarting] = useState(false)
+
   useEffect(() => {
     supabase
       .from('listings')
@@ -18,9 +24,57 @@ export default function ListingDetail() {
         setLoading(false)
       })
   }, [id])
+
+  const startChat = async () => {
+    if (!user) {
+      navigate('/login')
+      return
+    }
+    if (!listing?.user_id || listing.user_id === user.id) return
+
+    setStarting(true)
+    const otherUserId = listing.user_id
+
+    const { data: existing } = await supabase
+      .from('conversations')
+      .select('id')
+      .eq('listing_id', listing.id)
+      .or(
+        `and(user1_id.eq.${user.id},user2_id.eq.${otherUserId}),and(user1_id.eq.${otherUserId},user2_id.eq.${user.id})`
+      )
+      .maybeSingle()
+
+    if (existing) {
+      navigate(`/chat/${existing.id}`)
+      setStarting(false)
+      return
+    }
+
+    const { data: created, error } = await supabase
+      .from('conversations')
+      .insert({
+        user1_id: user.id,
+        user2_id: otherUserId,
+        listing_id: listing.id,
+      })
+      .select('id')
+      .single()
+
+    setStarting(false)
+
+    if (error) {
+      alert('Не удалось начать чат: ' + error.message)
+      return
+    }
+
+    navigate(`/chat/${created.id}`)
+  }
+
   if (loading) return <p className="text-ink/50">Загрузка...</p>
   if (!listing) return <p className="text-ink/50">Объявление не найдено или ещё не одобрено.</p>
   const photos = [...(listing.listing_photos ?? [])].sort((a, b) => a.sort_order - b.sort_order)
+  const isOwner = user && listing.user_id === user.id
+
   return (
     <div className="grid md:grid-cols-2 gap-8">
       <div className="min-w-0">
@@ -61,10 +115,10 @@ export default function ListingDetail() {
           <span>{listing.districts?.name ?? 'Владивосток'}</span>
         </div>
         <p className="text-ink/80 whitespace-pre-wrap break-words mb-6">{listing.description}</p>
-        <div className="border-t border-ink/10 pt-4">
+        <div className="border-t border-ink/10 pt-4 flex flex-wrap gap-3">
           {showPhone ? (
             
-             <a href={'tel:' + listing.phone}
+              href={'tel:' + listing.phone}
               className="inline-block bg-bay text-white px-5 py-3 rounded-md font-medium"
             >
               {listing.phone}
@@ -75,6 +129,16 @@ export default function ListingDetail() {
               className="bg-coral text-white px-5 py-3 rounded-md font-medium hover:bg-coral/90 transition-colors"
             >
               Показать телефон
+            </button>
+          )}
+
+          {!isOwner && (
+            <button
+              onClick={startChat}
+              disabled={starting}
+              className="border border-bay text-bay px-5 py-3 rounded-md font-medium hover:bg-fog transition-colors disabled:opacity-50"
+            >
+              {starting ? 'Открываем чат...' : 'Написать'}
             </button>
           )}
         </div>
