@@ -64,7 +64,7 @@ export default function ListingDetail() {
         <div className="border-t border-ink/10 pt-4">
           {showPhone ? (
             
-              href={'tel:' + listing.phone}
+             <a href={'tel:' + listing.phone}
               className="inline-block bg-bay text-white px-5 py-3 rounded-md font-medium"
             >
               {listing.phone}
