@@ -1,0 +1,124 @@
+import { useEffect, useState, useRef } from 'react'
+import { useParams, Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { useAuth } from '../context/AuthContext.jsx'
+
+export default function Chat() {
+  const { id } = useParams()
+  const { user } = useAuth()
+  const [messages, setMessages] = useState([])
+  const [text, setText] = useState('')
+  const [otherName, setOtherName] = useState('')
+  const [listingTitle, setListingTitle] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const bottomRef = useRef(null)
+
+  useEffect(() => {
+    let channel
+
+    const load = async () => {
+      const { data: conv } = await supabase
+        .from('conversations')
+        .select('*, listings(title)')
+        .eq('id', id)
+        .single()
+
+      if (conv) {
+        const otherId = conv.user1_id === user.id ? conv.user2_id : conv.user1_id
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', otherId)
+          .single()
+        setOtherName(profile?.full_name || 'Собеседник')
+        setListingTitle(conv.listings?.title ?? null)
+      }
+
+      const { data: msgs } = await supabase
+        .from('private_messages')
+        .select('*')
+        .eq('conversation_id', id)
+        .order('created_at', { ascending: true })
+      setMessages(msgs ?? [])
+      setLoading(false)
+
+      channel = supabase
+        .channel('chat-' + id)
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'private_messages', filter: `conversation_id=eq.${id}` },
+          (payload) => setMessages((prev) => [...prev, payload.new])
+        )
+        .subscribe()
+    }
+
+    load()
+
+    return () => {
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, [id, user.id])
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const send = async (e) => {
+    e.preventDefault()
+    if (!text.trim()) return
+    const content = text.trim()
+    setText('')
+    await supabase.from('private_messages').insert({
+      conversation_id: id,
+      sender_id: user.id,
+      content,
+    })
+  }
+
+  if (loading) return <p className="text-ink/50">Загрузка...</p>
+
+  return (
+    <div className="max-w-xl mx-auto flex flex-col" style={{ height: 'calc(100vh - 220px)' }}>
+      <div className="border-b border-ink/10 pb-3 mb-3">
+        <Link to="/messages" className="text-sm text-bay hover:underline">
+          ← Все переписки
+        </Link>
+        <h1 className="text-xl font-semibold mt-1">{otherName}</h1>
+        {listingTitle && <p className="text-sm text-ink/50">по объявлению «{listingTitle}»</p>}
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-2 mb-3">
+        {messages.length === 0 ? (
+          <p className="text-ink/40 text-sm text-center py-8">Сообщений пока нет — напишите первым.</p>
+        ) : (
+          messages.map((m) => (
+            <div
+              key={m.id}
+              className={`max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
+                m.sender_id === user.id ? 'bg-bay text-white ml-auto' : 'bg-white border border-ink/10'
+              }`}
+            >
+              {m.content}
+            </div>
+          ))
+        )}
+        <div ref={bottomRef} />
+      </div>
+
+      <form onSubmit={send} className="flex gap-2">
+        <input
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Написать сообщение..."
+          className="flex-1 px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
+        />
+        <button
+          type="submit"
+          className="bg-bay text-white px-4 py-2 rounded-md font-medium hover:bg-bay/90"
+        >
+          Отправить
+        </button>
+      </form>
+    </div>
+  )
+}
