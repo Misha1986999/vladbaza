@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext.jsx'
 
 export default function GroupChat() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const [messages, setMessages] = useState([])
   const [names, setNames] = useState({})
   const [text, setText] = useState('')
@@ -52,6 +52,13 @@ export default function GroupChat() {
             }
           }
         )
+        .on(
+          'postgres_changes',
+          { event: 'DELETE', schema: 'public', table: 'group_messages' },
+          (payload) => {
+            setMessages((prev) => prev.filter((m) => m.id !== payload.old.id))
+          }
+        )
         .subscribe()
     }
 
@@ -77,6 +84,12 @@ export default function GroupChat() {
     })
   }
 
+  const removeMessage = async (id) => {
+    const confirmed = window.confirm('Удалить это сообщение?')
+    if (!confirmed) return
+    await supabase.from('group_messages').delete().eq('id', id)
+  }
+
   if (loading) return <p className="text-ink/50">Загрузка...</p>
 
   return (
@@ -90,7 +103,7 @@ export default function GroupChat() {
           messages.map((m) => (
             <div
               key={m.id}
-              className={`max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
+              className={`group relative max-w-[75%] px-3 py-2 rounded-lg text-sm break-words ${
                 m.sender_id === user.id ? 'bg-bay text-white ml-auto' : 'bg-white border border-ink/10'
               }`}
             >
@@ -98,6 +111,15 @@ export default function GroupChat() {
                 <p className="text-xs font-medium text-bay mb-0.5">{names[m.sender_id] || 'Пользователь'}</p>
               )}
               {m.content}
+              {profile?.is_admin && (
+                <button
+                  onClick={() => removeMessage(m.id)}
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-coral text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Удалить сообщение"
+                >
+                  ×
+                </button>
+              )}
             </div>
           ))
         )}
@@ -109,11 +131,11 @@ export default function GroupChat() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Написать в общий чат..."
-          className="flex-1 px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
+          className="flex-1 min-w-0 px-3 py-2 rounded-md border border-ink/15 focus:border-bay outline-none"
         />
         <button
           type="submit"
-          className="bg-bay text-white px-4 py-2 rounded-md font-medium hover:bg-bay/90"
+          className="bg-bay text-white px-4 py-2 rounded-md font-medium hover:bg-bay/90 flex-shrink-0"
         >
           Отправить
         </button>
